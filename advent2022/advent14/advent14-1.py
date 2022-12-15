@@ -36,9 +36,9 @@ def find_edge_of_formation(formation: set[tuple[int, int]]) -> tuple[int, int, i
     l, _ = min(formation, key=lambda x: x[0])
     r, _ = max(formation, key=lambda x: x[0])
     _, b = max(formation, key=lambda x: x[1])
-    print("left most pos:", l)
-    print("right most pos:", r)
-    print("bottom most pos:", b)
+    # print("left most pos:", l)
+    # print("right most pos:", r)
+    # print("bottom most pos:", b)
 
     return l, r, b
 
@@ -66,32 +66,32 @@ def drop_one_grain(formation: set[tuple[int, int]], left: int, right: int, botto
     return False
 
 
-def generate_cave(formation, bottom):
-    height = bottom + 2
-    width = 2 * height + 1
-    offset = 500 - width // 2
-    cave = [[' ' for _ in range(width)]
-            for _ in range(height)]
-    for rock in formation:
-        cave[rock[1]][rock[0] - offset] = '#'
-    return cave
+# def generate_cave(formation, bottom):
+#     height = bottom + 2
+#     width = 2 * height + 1
+#     offset = 500 - width // 2
+#     cave = [[' ' for _ in range(width)]
+#             for _ in range(height)]
+#     for rock in formation:
+#         cave[rock[1]][rock[0] - offset] = '#'
+#     return cave
 
 
-def add_sand_to_cave(cave, bottom):
-    height = bottom + 2
-    width = 2 * height + 1
-    offset = 500 - width // 2
-    for sand in formation:
-        cave[sand[1]][sand[0] - offset] = '.' if cave[sand[1]][sand[0] -
-                                                               offset] != '#' else '#'
-    return cave
+# def add_sand_to_cave(cave, bottom):
+#     height = bottom + 2
+#     width = 2 * height + 1
+#     offset = 500 - width // 2
+#     for sand in formation:
+#         cave[sand[1]][sand[0] - offset] = '.' if cave[sand[1]][sand[0] -
+#                                                                offset] != '#' else '#'
+#     return cave
 
 
 formation: set[tuple[int, int]] = parse_formation("data.txt")
 # print(formation)
 left, right, bottom = find_edge_of_formation(formation)
 
-cave = generate_cave(formation, bottom)
+# cave = generate_cave(formation, bottom)
 
 in_abyss: bool = False
 grains_of_sand: int = 0
@@ -100,8 +100,8 @@ while not in_abyss:
     grains_of_sand += 1 if not in_abyss else 0
     # print(formation)
 
-cave = add_sand_to_cave(cave, bottom)
-for row in cave:
-    print(''.join(row))
-print(in_abyss)
+# cave = add_sand_to_cave(cave, bottom)
+# for row in cave:
+#     print(''.join(row))
+# print(in_abyss)
 print(grains_of_sand)
