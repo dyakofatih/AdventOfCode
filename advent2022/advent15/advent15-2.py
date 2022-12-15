@@ -1,7 +1,4 @@
 
-import functools
-
-
 class Beacon:
     def __init__(self, x: int, y: int) -> None:
         self.x: int = x
@@ -31,33 +28,53 @@ def read_report_line(line: str) -> Sensor:
     return sensor
 
 
-def reach_none(x: int, y: int) -> bool:
-    bools: list[bool] = [True for _ in range(len(sensors))]
-    for i, sensor in enumerate(sensors):
-        bools[i] = abs(sensor.x - x) + abs(sensor.y - y) <= sensor.manhattan_radius
-    return any(bools)
-
+def sensor_reach_to_y(sensor: Sensor, y: int) -> set[tuple[int, int]]:
 
     
+    x1 = abs(sensor.y - y) - sensor.manhattan_radius + sensor.x
+    x2 = - abs(sensor.y - y) + sensor.manhattan_radius + sensor.x
+    return [x1, x2]
+
+
+def check_gap_at_y(y: int, limxy: int):
+    intervals = list()
+    for sensor in sensors:
+        if sensor.manhattan_radius < abs(sensor.y - y):
+            continue
+        intervals.append(sensor_reach_to_y(sensor, y))
+    intervals.sort()
+    intervals[0][0] = 0
+    intervals[-1][1] = limxy
+    check_for_gap_in_intervals(intervals, y)
+
+
+def check_for_gap_in_intervals(intervals: list[list[int, int]], y: int):
+    
+    stack = [intervals[0]]
+
+    for i in intervals[1:]:
+        if stack[-1][0] <= i[0] <= stack[-1][-1]:
+            stack[-1][-1] = max(stack[-1][-1], i[-1])
+        else:
+            stack.append(i)
+    
+    if len(stack) > 1:
+        for i1, i2 in zip(stack, stack[1:]):
+            if i1[1] + 2 == i2[0]:
+                print((i1[1] + 1) * 4_000_000 + y)
+                # print(i1[1] + 1, y)
+                exit(0)
+
 
 sensors: list[Sensor] = list()
-with open("./data_test.txt", 'r') as data:
+with open("./data.txt", 'r') as data:
 
     for line in data:
         sensor = read_report_line(line)
         sensors.append(sensor)
 
-sensors.sort(key=lambda s: s.x)
-
-# the y to check for
-xylim = 20
+# the x and y max to check for
+limxy = 4_000_000
 ####################
-
-for x in range(xylim + 1):
-    if x % 100 == 0:
-        print(x)
-    for y in range(xylim + 1):
-
-        if not reach_none(x, y):
-            print(x * 4_000_000 + y)
-            exit()
+for y in range(limxy + 1):
+    check_gap_at_y(y, limxy)
