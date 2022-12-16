@@ -1,4 +1,5 @@
 from queue import Queue
+from time import perf_counter
 
 def parse_line(line: str):
     
@@ -46,19 +47,21 @@ current_valve = 'AA'
 time_remaining = 30
 total_flow = 0
 # while time_remaining > 0:
+s = perf_counter()
 while time_remaining > 0:
     flows = sorted((best_flow(valves, current_valve, time_remaining)).items(), key=lambda x: x[1][1], reverse=True)
-    print(flows)
+    # print(flows)
     valve, time = flows[0]
-    print(valve, time)
+    # print(valve, time)
     if valves[valve][0] == 0:
         break
     time_remaining -= time[0]
-    print(time_remaining)
+    # print(time_remaining)
     additional_flow = valves[valve][0] * time_remaining
     total_flow += additional_flow
     valves[valve][0] = 0
     current_valve = valve
-    print("total flow:", total_flow)
+    # print("total flow:", total_flow)
 
 print(total_flow)
+print(perf_counter() - s)
