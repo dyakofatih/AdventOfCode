@@ -1,3 +1,4 @@
+from time import perf_counter
 
 class Beacon:
     def __init__(self, x: int, y: int) -> None:
@@ -52,6 +53,7 @@ coordinates: set[tuple[int, int]] = set()
 # the y to check for
 y = 2_000_000
 ####################
+s = perf_counter()
 for sensor in sensors:
     if sensor.manhattan_radius < abs(sensor.y - y):
         continue
@@ -69,9 +71,11 @@ for sensor in sensors:
                 {(sensor.b.x, sensor.b.y)})
 
 
-print("min_x:", min_x)
-print("max_x:", max_x)
-print("no. of beacons to omit:", len(beacons_to_omit))
+# print("min_x:", min_x)
+# print("max_x:", max_x)
+# print("no. of beacons to omit:", len(beacons_to_omit))
 print("total places where there cannot be any beacons = {}".format(
     max_x - min_x + 1 - len(beacons_to_omit)))
-exit(0)
+
+e = perf_counter()
+print(e-s)

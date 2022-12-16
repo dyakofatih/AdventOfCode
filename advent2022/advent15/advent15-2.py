@@ -1,4 +1,4 @@
-
+from time import perf_counter
 class Beacon:
     def __init__(self, x: int, y: int) -> None:
         self.x: int = x
@@ -45,7 +45,8 @@ def check_gap_at_y(y: int, limxy: int):
     intervals.sort()
     intervals[0][0] = 0
     intervals[-1][1] = limxy
-    check_for_gap_in_intervals(intervals, y)
+    if check_for_gap_in_intervals(intervals, y):
+       return True
 
 
 def check_for_gap_in_intervals(intervals: list[list[int, int]], y: int):
@@ -63,7 +64,7 @@ def check_for_gap_in_intervals(intervals: list[list[int, int]], y: int):
             if i1[1] + 2 == i2[0]:
                 print((i1[1] + 1) * 4_000_000 + y)
                 # print(i1[1] + 1, y)
-                exit(0)
+                return True
 
 
 sensors: list[Sensor] = list()
@@ -76,5 +77,9 @@ with open("./data.txt", 'r') as data:
 # the x and y max to check for
 limxy = 4_000_000
 ####################
+s = perf_counter()
 for y in range(limxy + 1):
-    check_gap_at_y(y, limxy)
+    if check_gap_at_y(y, limxy):
+        break
+e = perf_counter()
+print(e - s)
