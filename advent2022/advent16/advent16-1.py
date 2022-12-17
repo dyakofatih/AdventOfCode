@@ -1,67 +1,48 @@
-from queue import Queue
+from functools import cache
 from time import perf_counter
 
 def parse_line(line: str):
-    
     valve   = line[6:8]
     flow    = int(line[23:].split(';')[0])
     tunnels = line.split(';')[1][23:].replace(' ', '').split(',')
-    return valve, flow, tunnels
+    return valve, tunnels, flow
 
+valves: dict[str, list[str]] = dict()
+flows: dict[str, int] = dict()
 
-def best_flow(valves: dict[str, tuple[int, list[str]]], start_valve: str, time: int):
-    Q = Queue()
-    # set a dict with large distance to each valve and flow-rate
-    calculated_flow = {k: [100, v[0]] for k, v in valves.items()}
-    visited_valves = set()
-    Q.put(start_valve)
-    visited_valves.update({start_valve})
-    while not Q.empty():
-        valve = Q.get()
-        if valve == start_valve:
-            calculated_flow[valve][0] = 0
-        for u in valves[valve][1]:
-            if u not in visited_valves:
-                # update the distance
-                if calculated_flow[u][0] > calculated_flow[valve][0] + 1:
-                    calculated_flow[u][0] = calculated_flow[valve][0] + 1
-
-                Q.put(u)
-                visited_valves.update({u})
-    
-    for key, value in calculated_flow.items():
-        dist = value[0] + 1
-        flow = value[1] * (time - dist) // dist ** 2
-        calculated_flow[key] = [dist, flow]
-
-    return calculated_flow
-
-valves: dict[str, tuple[int,list[str]]] = {}
-
-with open("./data_test.txt", 'r') as data:
+with open("./data.txt", 'r') as data:
     for line in data:
-        valve = (parse_line(line[:-1]))
-        valves[valve[0]] = list(valve[1:])
+        valve, tunnels, flow = (parse_line(line[:-1]))
+        valves[valve] = tunnels
+        flows[valve] = flow
 
-current_valve = 'AA'
-time_remaining = 30
-total_flow = 0
-# while time_remaining > 0:
+# NOT Really my own solution sadly, but wanted to test out a solution
+# I saw in C++ using but just using the cache decorator instead of doing it manually
+@cache
+def best_flow(current_valve: str, time_remaining: int, open: frozenset[str]) -> int:
+    # if time runs out, return 0 (base case)
+    if time_remaining == 0:
+        return 0
+
+    # get the best flow for each valve connected to current valve
+    flow_from_walking: int = 0
+    for valve in valves[current_valve]:
+        flow_from_walking = max(best_flow(valve, time_remaining-1, open), flow_from_walking)
+
+    # if valve is not open and yieds a non-zero flow, then open and then continue 
+    flow_from_opening: int = 0
+    if current_valve not in open and flows[current_valve] > 0:
+        tmp: set[str] = set(open)
+        tmp.add(current_valve)
+        flow_from_opening = flows[current_valve] * (time_remaining - 1) + best_flow(
+            current_valve, time_remaining-1, frozenset(tmp))
+
+    # return whatever is greater, opening and walking, or just walking
+    return max(flow_from_walking, flow_from_opening)
+
+starting_valve: str = 'AA'
+starting_time: int = 30
 s = perf_counter()
-while time_remaining > 0:
-    flows = sorted((best_flow(valves, current_valve, time_remaining)).items(), key=lambda x: x[1][1], reverse=True)
-    # print(flows)
-    valve, time = flows[0]
-    # print(valve, time)
-    if valves[valve][0] == 0:
-        break
-    time_remaining -= time[0]
-    # print(time_remaining)
-    additional_flow = valves[valve][0] * time_remaining
-    total_flow += additional_flow
-    valves[valve][0] = 0
-    current_valve = valve
-    # print("total flow:", total_flow)
-
+total_flow = best_flow(starting_valve, starting_time, frozenset())
 print(total_flow)
 print(perf_counter() - s)
