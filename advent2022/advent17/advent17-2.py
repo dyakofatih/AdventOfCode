@@ -31,6 +31,9 @@ def rock_falling(formation: set[complex], rock: set[complex]) -> bool:
 formation: set[complex] = {-1j, 1 - 1j, 2 - 1j, 3 - 1j, 4 - 1j, 5 - 1j, 6 - 1j} 
 elevation = 0
 
+cache: dict = dict()
+
+
 
 ##########
 rocks = 5000 # number of rocks to simulate
