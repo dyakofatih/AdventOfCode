@@ -14,7 +14,7 @@ def new_dir(dir_idx: int, rotation: str):
 def wrap_around(curr_pos, inc):
     # print("starting pos for wrap:", curr_pos)
     if inc == 1:
-        next_pos = complex(0, curr_pos.imag)
+        next_pos = complex(1, curr_pos.imag)
         square = map.get(next_pos)
         while square is None:
             next_pos += inc
@@ -30,7 +30,7 @@ def wrap_around(curr_pos, inc):
         # print("wrapping around to:", next_pos)
         return next_pos
     elif inc == 1j:
-        next_pos = complex(curr_pos.real, 0)
+        next_pos = complex(curr_pos.real, 1)
         square = map.get(next_pos)
         while square is None:
             next_pos += inc
@@ -69,11 +69,11 @@ def move(curr_pos, dir_idx, rotation, dist):
             # print(curr_pos)
             square = map.get(next_pos)
             if square == '#':
-                print("hit wall")
+                # print("hit wall")
                 break
             else:
                 curr_pos = next_pos
-            print("going to:", curr_pos, "instead")
+            # print("going to:", curr_pos, "instead")
         elif square == '#':
             # print("hit wall")
             break
@@ -92,12 +92,12 @@ with open('./data.txt', 'r') as data:
     y: int
     for y, line in enumerate(lines[:-2]):
         for x, c in enumerate(line[:-1]):
-            key = complex(x, y)
+            key = complex(x+1, y+1)
             map[key] = c
             max_x = max(max_x, x)
             max_y = max(max_y, y)
-max_x += 2
-max_y += 2
+max_x += 1
+max_y += 1
 
 keys = list(map.keys())
 for k in keys:
@@ -107,7 +107,7 @@ for k in keys:
 # for k, v in map.items():
 #     print(k, v)
 
-print(max_x, max_y)
+# print(max_x, max_y)
 dist = ''
 dir = 'S'
 instructions = []
@@ -121,19 +121,19 @@ for c in inst:
         dist = ''
 
 instructions.append((dir, int(dist)))
-print(instructions[0], instructions[-1])
+# print(instructions[0], instructions[-1])
 
 dir_idx = 0
 # manually find and set starting position
-position = 50
+position = (51 + 1j)
 ########
 
-print(map.get(50))
+# print(map.get((51 + 1j)))
 for instruction in instructions:
     rotation, dist = instruction
     position, dir_idx = move(position, dir_idx, rotation, dist)
 
 
 print("final position:", position, "and final direction:", dir_idx)
-final_sum = (position.imag + 1) * 1000 + (position.real + 1) * 4 + dir_idx
+final_sum = position.imag * 1000 + position.real * 4 + dir_idx
 print("final sum:", int(final_sum))
